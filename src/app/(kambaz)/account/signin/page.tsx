@@ -17,7 +17,7 @@ export default function Signin() {
         defaultValue="123"
       />{" "}
       <br />
-      <Link href="/account/profile" id="wd-signin-btn">
+      <Link href="/dashboard" id="wd-signin-btn">
         Sign in
       </Link>{" "}
       <br />
