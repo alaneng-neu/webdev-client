@@ -1,8 +1,21 @@
+import Modules from "../modules/page";
+import CourseStatus from "./Status";
+
 export default function Home() {
   return (
     <div id="wd-home">
-      <h2>Home</h2>
-      <p>Course Home Page</p>
+      <table>
+        <tbody>
+          <tr>
+            <td valign="top" width="70%">
+              <Modules />
+            </td>
+            <td valign="top">
+              <CourseStatus />
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
