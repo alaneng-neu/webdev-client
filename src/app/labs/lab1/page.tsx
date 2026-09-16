@@ -4,6 +4,7 @@ import ListTags from "./ListTags";
 import Tables from "./Tables";
 import Images from "./Images";
 import Forms from "./forms/Forms";
+import HighlightedParagraphLab from "./HighlightedParagraph";
 
 export default function Lab1() {
   return (
@@ -16,6 +17,7 @@ export default function Lab1() {
       <Tables />
       <Images />
       <Forms />
+      <HighlightedParagraphLab />
       {/* do the next exercise here */}
     </div>
   );
