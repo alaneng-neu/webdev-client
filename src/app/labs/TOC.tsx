@@ -22,7 +22,9 @@ export default function TOC() {
           </Link>
         </li>
         <li>
-          <Link href="/labs/lab3">Lab 3</Link>
+          <Link href="/labs/lab3" id="wd-lab3-link">
+            Lab 3
+          </Link>
         </li>
         <li>
           <Link href="/labs/lab4">Lab 4</Link>
