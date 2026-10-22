@@ -24,12 +24,12 @@ export default function House() {
       {house.bedrooms}
       <h5>bathrooms</h5>
       {house.bathrooms}
+      <h5>owners</h5>
+      {house.owners.join(", ")}
       <h5>yearBuilt</h5>
       {house.yearBuilt}
       <h5>garage cars</h5>
       {house.garage.cars}
-      <h5>owners</h5>
-      {house.owners.join(", ")}
       <h5>Data</h5>
       <pre>{JSON.stringify(house, null, 2)}</pre>
       <hr />
