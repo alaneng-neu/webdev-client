@@ -8,8 +8,18 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { LiaBookSolid } from "react-icons/lia";
 import { FaFlask, FaInbox } from "react-icons/fa";
 
+const LINKS = [
+  { label: "Dashboard", path: "/dashboard", icon: AiOutlineDashboard },
+  { label: "Courses", path: "/dashboard", icon: LiaBookSolid },
+  { label: "Calendar", path: "/calendar", icon: IoCalendarOutline },
+  { label: "Inbox", path: "/inbox", icon: FaInbox },
+  { label: "Labs", path: "/labs", icon: FaFlask },
+  { label: "History", path: "/history", icon: IoCalendarOutline },
+] as const;
+
 export default function KambazNavigation() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
+  const accountActive = pathname.includes("/account");
 
   const idleTile =
     "block bg-black py-3 text-center text-sm text-white no-underline";
@@ -39,57 +49,31 @@ export default function KambazNavigation() {
       <Link
         href="/account"
         id="wd-account-link"
-        className={pathname.startsWith("/account") ? activeTile : idleTile}
+        className={accountActive ? activeTile : idleTile}
       >
         <FaRegCircleUser className={iconClass} />
         <br />
         Account
       </Link>
-      <Link
-        href="/dashboard"
-        id="wd-dashboard-link"
-        className={pathname.startsWith("/dashboard") ? activeTile : idleTile}
-      >
-        <AiOutlineDashboard className={iconClass} />
-        <br />
-        Dashboard
-      </Link>
-      <Link
-        href="/dashboard"
-        id="wd-course-link"
-        className={pathname.startsWith("/courses") ? activeTile : idleTile}
-      >
-        <LiaBookSolid className={iconClass} />
-        <br />
-        Courses
-      </Link>
-      <Link
-        href="/calendar"
-        id="wd-calendar-link"
-        className={pathname.startsWith("/calendar") ? activeTile : idleTile}
-      >
-        <IoCalendarOutline className={iconClass} />
-        <br />
-        Calendar
-      </Link>
-      <Link
-        href="/inbox"
-        id="wd-inbox-link"
-        className={pathname.startsWith("/inbox") ? activeTile : idleTile}
-      >
-        <FaInbox className={iconClass} />
-        <br />
-        Inbox
-      </Link>
-      <Link
-        href="/labs"
-        id="wd-labs-link"
-        className={pathname.startsWith("/labs") ? activeTile : idleTile}
-      >
-        <FaFlask className={iconClass} />
-        <br />
-        Labs
-      </Link>
+      {LINKS.map((link) => {
+        const active =
+          link.label === "Courses"
+            ? pathname.includes("/courses")
+            : pathname.includes(link.path);
+        const Icon = link.icon;
+        return (
+          <Link
+            key={link.label}
+            href={link.path}
+            id={`wd-${link.label.toLowerCase()}-link`}
+            className={active ? activeTile : idleTile}
+          >
+            <Icon className={iconClass} />
+            <br />
+            {link.label}
+          </Link>
+        );
+      })}
       <Link href="/labs" id="wd-ai-nav-help" className={idleTile}>
         <FaCircleQuestion className={iconClass} />
         <br />
