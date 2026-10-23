@@ -1,11 +1,13 @@
 import Link from "next/link";
+import * as db from "../../../../database";
 
 export default async function AssignmentEditor({
   params,
 }: {
   params: Promise<{ cid: string; aid: string }>;
 }) {
-  const { cid } = await params;
+  const { cid, aid } = await params;
+  const assignment = db.assignments.find((a) => a._id === aid);
 
   const fieldClass =
     "w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm [font-family:inherit]";
@@ -21,21 +23,28 @@ export default async function AssignmentEditor({
       </label>
       <input
         id="wd-name"
-        defaultValue="A1 - ENV + HTML"
-        className={`${fieldClass} mb-4`}
+        defaultValue={assignment?.title ?? ""}
+        className={`${fieldClass} mb-1`}
       />
+      <p id="wd-assignment-id" className="mb-4 text-sm text-neutral-600">
+        Assignment id: {aid}
+      </p>
       <textarea
         id="wd-description"
         rows={6}
         className={`${fieldClass} mb-6`}
-        defaultValue={`The assignment is available online Submit a link to the landing page of your Web application running on Vercel.`}
+        defaultValue={assignment?.description ?? ""}
       />
 
       <div className={rowClass}>
         <label htmlFor="wd-points" className={rowLabelClass}>
           Points
         </label>
-        <input id="wd-points" defaultValue={100} className={fieldClass} />
+        <input
+          id="wd-points"
+          defaultValue={assignment?.points ?? 100}
+          className={fieldClass}
+        />
       </div>
       <div className={rowClass}>
         <label htmlFor="wd-group" className={rowLabelClass}>
@@ -118,7 +127,7 @@ export default async function AssignmentEditor({
           <input
             type="date"
             id="wd-due-date"
-            defaultValue="2026-09-27"
+            defaultValue={assignment?.due}
             className={`${fieldClass} mb-4`}
           />
           <div className="flex gap-2">
@@ -132,7 +141,7 @@ export default async function AssignmentEditor({
               <input
                 type="date"
                 id="wd-available-from"
-                defaultValue="2026-09-09"
+                defaultValue={assignment?.available}
                 className={fieldClass}
               />
             </div>
