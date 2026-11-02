@@ -1,11 +1,13 @@
 "use client";
 
-import { ReactNode, useState } from "react";
-import { useParams } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 import { useCoursesStore } from "../../store/coursesStore";
+import { isEnrolled, useEnrollmentsStore } from "../../store/enrollmentsStore";
+import { useAccountContext } from "../../account/AccountContext";
 
 export default function CoursesLayout({
   children,
@@ -17,6 +19,17 @@ export default function CoursesLayout({
   const courses = useCoursesStore((state) => state.courses);
   const course = courses.find((c) => c._id === courseId);
   const [showCourseNav, setShowCourseNav] = useState(true);
+  const router = useRouter();
+  const { currentUser } = useAccountContext();
+  const enrollments = useEnrollmentsStore((state) => state.enrollments);
+  const allowed =
+    !currentUser || isEnrolled(enrollments, currentUser._id, courseId);
+
+  useEffect(() => {
+    if (!allowed) router.replace("/dashboard");
+  }, [allowed, router]);
+
+  if (!allowed) return null;
 
   return (
     <div id="wd-courses">

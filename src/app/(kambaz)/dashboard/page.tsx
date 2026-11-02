@@ -8,28 +8,42 @@ import {
   type Course,
 } from "../store/coursesStore";
 import { useAccountContext } from "../account/AccountContext";
-import * as db from "../database";
+import { isEnrolled, useEnrollmentsStore } from "../store/enrollmentsStore";
 
 export default function Dashboard() {
   const courses = useCoursesStore((state) => state.courses);
-  const { currentUser } = useAccountContext();
-  const visibleCourses = currentUser
-    ? courses.filter((c) =>
-        db.enrollments.some(
-          (enrollment) =>
-            enrollment.user === currentUser._id && enrollment.course === c._id,
-        ),
-      )
-    : courses;
   const addCourse = useCoursesStore((state) => state.addCourse);
   const updateCourse = useCoursesStore((state) => state.updateCourse);
+  const enrollments = useEnrollmentsStore((state) => state.enrollments);
+  const enroll = useEnrollmentsStore((state) => state.enroll);
+  const unenroll = useEnrollmentsStore((state) => state.unenroll);
+  const { currentUser } = useAccountContext();
   const [course, setCourse] = useState<Course>(emptyCourse);
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const enrolledIn = (courseId: string) =>
+    !!currentUser && isEnrolled(enrollments, currentUser._id, courseId);
+  const visibleCourses =
+    currentUser && !showAllCourses
+      ? courses.filter((c) => enrolledIn(c._id))
+      : courses;
   const fieldClass =
     "mb-2 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5";
 
   return (
     <div id="wd-dashboard">
-      <h1 id="wd-dashboard-title">Dashboard</h1>
+      <div className="flex items-center justify-between gap-2">
+        <h1 id="wd-dashboard-title">Dashboard</h1>
+        {currentUser && (
+          <button
+            type="button"
+            id="wd-enrollments-toggle"
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white"
+            onClick={() => setShowAllCourses(!showAllCourses)}
+          >
+            Enrollments
+          </button>
+        )}
+      </div>
       <hr />
       <h5 className="flex flex-wrap items-center gap-2">
         New Course
@@ -91,6 +105,15 @@ export default function Dashboard() {
             key={c._id}
             course={c}
             onEdit={() => setCourse(c)}
+            enrollment={
+              currentUser
+                ? {
+                    enrolled: enrolledIn(c._id),
+                    enroll: () => enroll(currentUser._id, c._id),
+                    unenroll: () => unenroll(currentUser._id, c._id),
+                  }
+                : undefined
+            }
           />
         ))}
       </div>
