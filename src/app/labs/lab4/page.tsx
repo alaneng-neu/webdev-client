@@ -19,6 +19,8 @@ import ContextProfileForm from "./context/ContextProfileForm";
 import ZustandExamples from "./zustand/ZustandExamples";
 import ZustandProfileForm from "./zustand/ZustandProfileForm";
 import ReduxExamples from "./redux/ReduxExamples";
+import Effect from "./Effect";
+import Link from "next/link";
 
 export default function Lab4() {
   const sayHello = (message: string) => {
@@ -57,6 +59,20 @@ export default function Lab4() {
       <ZustandExamples />
       <ZustandProfileForm />
       <ReduxExamples />
+      <Effect />
+      <h2>More Lab 4 Pages</h2>
+      <ul>
+        <li>
+          <Link href="/labs/lab4/hooks" id="wd-lab4-hooks-link">
+            Writing Your Own Hooks
+          </Link>
+        </li>
+        <li>
+          <Link href="/labs/lab4/profile-form" id="wd-lab4-profile-form-link">
+            Profile forms side by side
+          </Link>
+        </li>
+      </ul>
     </div>
   );
 }
