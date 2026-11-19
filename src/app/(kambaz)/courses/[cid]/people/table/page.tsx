@@ -1,48 +1,57 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { FaUserCircle } from "react-icons/fa";
-import * as db from "../../../../database";
-import { useEnrollmentsStore } from "../../../../store/enrollmentsStore";
+import { FaPlus } from "react-icons/fa";
+import PeopleTable from "../Table";
+import * as client from "../../../client";
+import * as accountClient from "../../../../account/client";
+import { useAccountContext, type User } from "../../../../account/AccountContext";
 
-export default function PeopleTable() {
+export default function People() {
   const { cid } = useParams();
-  const enrollments = useEnrollmentsStore((state) => state.enrollments);
-  const enrolled = db.users.filter((usr) =>
-    enrollments.some(
-      (enrollment) => enrollment.user === usr._id && enrollment.course === cid,
-    ),
-  );
+  const courseId = String(cid);
+  const { currentUser } = useAccountContext();
+  const canManage = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
+  const [users, setUsers] = useState<User[]>([]);
+
+  const fetchUsers = useCallback(async () => {
+    setUsers(await client.findUsersForCourse(courseId));
+  }, [courseId]);
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  // The roster lists enrolled users only, so a new user is enrolled here right away
+  const createUser = async () => {
+    const user = await accountClient.createUser({
+      firstName: "New",
+      lastName: `User ${users.length + 1}`,
+      username: `newuser${Date.now()}`,
+      password: "password123",
+      email: `email${users.length + 1}@neu.edu`,
+      section: "S101",
+      role: "STUDENT",
+    });
+    await client.enrollIntoCourse(user._id, courseId);
+    setUsers([...users, user]);
+  };
+
   return (
-    <div id="wd-people-table" className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm">
-        <thead>
-          <tr className="border-b border-neutral-300">
-            <th className="p-2">Name</th>
-            <th className="p-2">Login ID</th>
-            <th className="p-2">Section</th>
-            <th className="p-2">Role</th>
-            <th className="p-2">Last Activity</th>
-            <th className="p-2">Total Activity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {enrolled.map((user) => (
-            <tr key={user._id} className="odd:bg-neutral-50">
-              <td className="wd-full-name p-2 text-nowrap">
-                <FaUserCircle className="me-2 inline align-middle text-4xl text-neutral-500" />
-                <span className="wd-first-name">{user.firstName}</span>{" "}
-                <span className="wd-last-name">{user.lastName}</span>
-              </td>
-              <td className="wd-login-id p-2">{user.loginId}</td>
-              <td className="wd-section p-2">{user.section}</td>
-              <td className="wd-role p-2">{user.role}</td>
-              <td className="wd-last-activity p-2">{user.lastActivity}</td>
-              <td className="wd-total-activity p-2">{user.totalActivity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {canManage && (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            id="wd-add-people"
+            onClick={createUser}
+            className="inline-flex items-center gap-1 rounded border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white"
+          >
+            <FaPlus /> People
+          </button>
+        </div>
+      )}
+      <PeopleTable users={users} fetchUsers={fetchUsers} />
     </div>
   );
 }
