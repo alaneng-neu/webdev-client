@@ -5,7 +5,15 @@ import {
   type CourseModule,
 } from "../../../store/modulesStore";
 
-export default function Module({ module }: { module: CourseModule }) {
+export default function Module({
+  module,
+  deleteModule,
+  saveModule,
+}: {
+  module: CourseModule;
+  deleteModule: (moduleId: string) => void;
+  saveModule: (module: CourseModule) => void;
+}) {
   const updateModule = useModulesStore((state) => state.updateModule);
   return (
     <li className="wd-module mb-5 overflow-hidden border border-neutral-400 p-0 text-xl">
@@ -17,14 +25,14 @@ export default function Module({ module }: { module: CourseModule }) {
             onChange={(e) => updateModule({ ...module, name: e.target.value })}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                updateModule({ ...module, editing: false });
+                saveModule({ ...module, editing: false });
               }
             }}
           />
         ) : (
           <span>{module.name}</span>
         )}
-        <ModuleControlButtons moduleId={module._id} />
+        <ModuleControlButtons moduleId={module._id} deleteModule={deleteModule} />
       </div>
       <ul className="wd-lessons m-0 list-none p-0">
         {module.lessons?.map((lesson) => (
