@@ -3,18 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useAccountContext } from "../AccountContext";
+import * as client from "../client";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { setCurrentUser } = useAccountContext();
   const router = useRouter();
 
-  const signup = () => {
+  const signup = async () => {
     if (!username || !password) return;
-    setCurrentUser({
-      _id: crypto.randomUUID(),
+    // Blank profile fields keep the Profile form's inputs controlled
+    const user = {
       username,
       password,
       firstName: "",
@@ -25,13 +28,24 @@ export default function Signup() {
       section: "",
       lastActivity: "",
       totalActivity: "",
-    });
-    router.push("/account/profile");
+    };
+    try {
+      const current = await client.signup(user);
+      setCurrentUser(current);
+      router.push("/account/profile");
+    } catch (e) {
+      setError(axios.isAxiosError(e) ? e.response?.data?.message ?? e.message : String(e));
+    }
   };
 
   return (
     <div id="wd-signup-screen" className="max-w-sm">
       <h1 className="mb-3 text-2xl font-semibold">Sign up</h1>
+      {error && (
+        <p id="wd-signup-error" className="mb-2 rounded bg-red-100 px-3 py-2 text-red-800">
+          {error}
+        </p>
+      )}
       <input
         id="wd-username"
         placeholder="username"
