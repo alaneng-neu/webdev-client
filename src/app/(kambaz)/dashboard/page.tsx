@@ -67,8 +67,18 @@ export default function Dashboard() {
       setAllCourses(allCourses.filter((c) => c._id !== courseId));
     });
 
-  // The cache holds the signed-in user's enrolled courses. Enroll and unenroll
-  // only edit that cache until enrollments get their own server routes.
+  const onEnroll = (c: Course) =>
+    run(async () => {
+      await client.enrollIntoCourse("current", c._id);
+      addCourse(c);
+    });
+  const onUnenroll = (courseId: string) =>
+    run(async () => {
+      await client.unenrollFromCourse("current", courseId);
+      deleteCourse(courseId);
+    });
+
+  // The cache holds only the signed-in user's courses, so membership in it is enrollment
   const enrolledIn = (courseId: string) => courses.some((c) => c._id === courseId);
   const visibleCourses = currentUser && showAllCourses ? allCourses : courses;
   const fieldClass =
@@ -160,8 +170,8 @@ export default function Dashboard() {
               currentUser
                 ? {
                     enrolled: enrolledIn(c._id),
-                    enroll: () => addCourse(c),
-                    unenroll: () => deleteCourse(c._id),
+                    enroll: () => onEnroll(c),
+                    unenroll: () => onUnenroll(c._id),
                   }
                 : undefined
             }
