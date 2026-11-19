@@ -6,8 +6,8 @@ import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 import { useCoursesStore } from "../../store/coursesStore";
-import { isEnrolled, useEnrollmentsStore } from "../../store/enrollmentsStore";
 import { useAccountContext } from "../../account/AccountContext";
+import * as client from "../client";
 
 export default function CoursesLayout({
   children,
@@ -17,18 +17,34 @@ export default function CoursesLayout({
   const { cid } = useParams();
   const courseId = typeof cid === "string" ? cid : "";
   const courses = useCoursesStore((state) => state.courses);
+  const setCourses = useCoursesStore((state) => state.setCourses);
   const course = courses.find((c) => c._id === courseId);
   const [showCourseNav, setShowCourseNav] = useState(true);
+  const [fetched, setFetched] = useState(false);
   const router = useRouter();
   const { currentUser } = useAccountContext();
-  const enrollments = useEnrollmentsStore((state) => state.enrollments);
-  const allowed =
-    !currentUser || isEnrolled(enrollments, currentUser._id, courseId);
+  const allowed = !currentUser || !!course;
+
+  // A reload lands here with an empty cache; otherwise keep the Dashboard's cache
+  useEffect(() => {
+    if (course || fetched) return;
+    const load = async () => {
+      try {
+        setCourses(
+          currentUser ? await client.findMyCourses() : await client.fetchAllCourses(),
+        );
+      } finally {
+        setFetched(true);
+      }
+    };
+    load();
+  }, [course, fetched, currentUser, setCourses]);
 
   useEffect(() => {
-    if (!allowed) router.replace("/dashboard");
-  }, [allowed, router]);
+    if (fetched && !allowed) router.replace("/dashboard");
+  }, [fetched, allowed, router]);
 
+  if (!course && !fetched) return null;
   if (!allowed) return null;
 
   return (
