@@ -6,6 +6,7 @@ import WorkingWithRemoteArrays from "./WorkingWithRemoteArrays";
 import HttpClient from "./HttpClient";
 import WorkingWithRemoteObjectsAsynchronously from "./WorkingWithRemoteObjectsAsync";
 import WorkingWithRemoteArraysAsynchronously from "./WorkingWithRemoteArraysAsync";
+import HelloRoute from "./HelloRoute";
 
 export default function Lab5() {
   return (
@@ -19,6 +20,7 @@ export default function Lab5() {
       <HttpClient />
       <WorkingWithRemoteObjectsAsynchronously />
       <WorkingWithRemoteArraysAsynchronously />
+      <HelloRoute />
     </div>
   );
 }
