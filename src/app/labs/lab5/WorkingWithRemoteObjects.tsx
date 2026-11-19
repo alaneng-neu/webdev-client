@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const HTTP_SERVER = process.env.NEXT_PUBLIC_HTTP_SERVER;
 const input = "mb-2 block w-full max-w-sm rounded border border-neutral-300 px-3 py-1.5";
-const button = "mr-2 inline-block rounded bg-blue-600 px-3 py-1.5 text-sm text-white";
+const button = "mr-2 inline-block rounded bg-blue-600 px-3 py-1.5 text-sm text-white no-underline";
 
 export default function WorkingWithRemoteObjects() {
   const [assignment, setAssignment] = useState({
