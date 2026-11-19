@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   emptyAssignment,
@@ -8,28 +8,60 @@ import {
   type Assignment,
 } from "../../../../store/assignmentsStore";
 import { useAccountContext } from "../../../../account/AccountContext";
+import * as client from "../../../client";
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams();
   const courseId = String(cid);
   const assignmentId = String(aid);
-  const router = useRouter();
-  const { currentUser } = useAccountContext();
-  const canEdit = currentUser?.role !== "STUDENT";
+  const isNew = assignmentId === "new";
   const existing = useAssignmentsStore((state) =>
     state.assignments.find((a) => a._id === assignmentId && a.course === courseId),
   );
+  const setAssignments = useAssignmentsStore((state) => state.setAssignments);
+  const [fetched, setFetched] = useState(false);
+
+  // Opening the editor straight from a URL skips the list page, so the cache may be empty
+  useEffect(() => {
+    if (existing || isNew) return;
+    const load = async () => {
+      setAssignments(await client.findAssignmentsForCourse(courseId));
+      setFetched(true);
+    };
+    load();
+  }, [existing, isNew, courseId, setAssignments]);
+
+  if (!existing && !isNew && !fetched) return null;
+  return (
+    <AssignmentForm
+      key={existing?._id ?? "new"}
+      courseId={courseId}
+      existing={existing}
+    />
+  );
+}
+
+function AssignmentForm({
+  courseId,
+  existing,
+}: {
+  courseId: string;
+  existing?: Assignment;
+}) {
+  const router = useRouter();
+  const { currentUser } = useAccountContext();
+  const canEdit = currentUser?.role !== "STUDENT";
   const addAssignment = useAssignmentsStore((state) => state.addAssignment);
   const updateAssignment = useAssignmentsStore((state) => state.updateAssignment);
   const [assignment, setAssignment] = useState<Assignment>(
     existing ?? { ...emptyAssignment, course: courseId },
   );
   const backToList = () => router.push(`/courses/${courseId}/assignments`);
-  const save = () => {
+  const save = async () => {
     if (existing) {
-      updateAssignment(assignment);
+      updateAssignment(await client.updateAssignment(assignment));
     } else {
-      addAssignment(assignment);
+      addAssignment(await client.createAssignmentForCourse(courseId, assignment));
     }
     backToList();
   };
